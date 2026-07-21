@@ -11,8 +11,19 @@ const WaitlistForm = () => {
     message: string;
   } | null>(null);
 
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "";
-  const apiEndpoint = `${apiBaseUrl.replace(/\/+$/, "")}/api/waitlist`;
+  const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
+  const isLocalhostUrl =
+    !!configuredApiBaseUrl &&
+    /^(https?:\/\/)?(localhost|127\.0\.0\.1)(:\d+)?\/?$/i.test(configuredApiBaseUrl);
+
+  const apiBaseUrl =
+    import.meta.env.PROD && (!configuredApiBaseUrl || isLocalhostUrl)
+      ? "https://seka-backend.vercel.app"
+      : configuredApiBaseUrl || (import.meta.env.DEV ? "http://localhost:5000" : "");
+
+  const apiEndpoint = apiBaseUrl
+    ? `${apiBaseUrl.replace(/\/+$/, "")}/api/waitlist`
+    : "/api/waitlist";
 
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>
