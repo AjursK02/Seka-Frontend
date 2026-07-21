@@ -12,6 +12,7 @@ const WaitlistForm = () => {
   } | null>(null);
 
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "";
+  const apiEndpoint = `${apiBaseUrl.replace(/\/+$/, "")}/api/waitlist`;
 
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>
@@ -40,16 +41,13 @@ const WaitlistForm = () => {
     setFeedback(null);
 
     try {
-      const response = await fetch(
-        `${apiBaseUrl || ""}/api/waitlist`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email: trimmedEmail }),
-        }
-      );
+      const response = await fetch(apiEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: trimmedEmail }),
+      });
 
       const result: {
         success?: boolean;
