@@ -1,0 +1,24 @@
+:root {
+  --primary:#b6212a;
+  --primary-light:#ff5757;
+  --background:#fcf9f8;
+  --surface:#f6f3f2;
+  --outline:#e5e2e1;
+  --text:#1c1b1b;
+}
+
+@keyframes fadeScaleIn {
+  from {
+    opacity: 0.2;
+    transform: scale(0.995);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.meet-post-fade-in {
+  animation: fadeScaleIn 900ms ease-out;
+}
