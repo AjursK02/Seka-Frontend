@@ -17,9 +17,11 @@ const WaitlistForm = () => {
     /^(https?:\/\/)?(localhost|127\.0\.0\.1)(:\d+)?\/?$/i.test(configuredApiBaseUrl);
 
   const apiBaseUrl =
-    import.meta.env.PROD && (!configuredApiBaseUrl || isLocalhostUrl)
-      ? "https://seka-backend.vercel.app"
-      : configuredApiBaseUrl || (import.meta.env.DEV ? "http://localhost:5000" : "");
+    configuredApiBaseUrl && !isLocalhostUrl
+      ? configuredApiBaseUrl
+      : import.meta.env.PROD
+        ? "https://seka-backend.vercel.app"
+        : "";
 
   const apiEndpoint = apiBaseUrl
     ? `${apiBaseUrl.replace(/\/+$/, "")}/api/waitlist`
