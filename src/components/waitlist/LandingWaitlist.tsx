@@ -1,6 +1,6 @@
-import Container from "../common/Container";
-import FadeIn from "../common/FadeIn";
-import WaitlistForm from "./WaitlistForm";
+import Container from "../common/LandingContainer";
+import FadeIn from "../common/LandingFadeIn";
+import WaitlistForm from "./LandingWaitlistForm";
 
 const Waitlist = () => {
   return (

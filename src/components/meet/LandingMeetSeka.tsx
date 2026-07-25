@@ -1,8 +1,8 @@
-import Container from "../common/Container";
-import FadeIn from "../common/FadeIn";
-import FeatureItem from "./FeatureItem";
-import { featureData } from "./featureData";
-import MeetPostCarousel from "./MeetPostCarousel";
+import Container from "../common/LandingContainer";
+import FadeIn from "../common/LandingFadeIn";
+import FeatureItem from "./LandingFeatureItem";
+import { featureData } from "./LandingFeatureData";
+import MeetPostCarousel from "./LandingMeetPostCarousel";
 
 const MeetSeka = () => {
   return (

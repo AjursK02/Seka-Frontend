@@ -1,6 +1,6 @@
-import Container from "../common/Container";
-import HeroBackground from "./HeroBackground";
-import HeroContent from "./HeroContent";
+import Container from "../common/LandingContainer";
+import HeroBackground from "./LandingHeroBackground";
+import HeroContent from "./LandingHeroContent";
 
 const Hero = () => {
   return (

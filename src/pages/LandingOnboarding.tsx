@@ -1,8 +1,8 @@
 import { useState } from "react";
-import Container from "../components/common/Container";
-import FadeIn from "../components/common/FadeIn";
-import QuestionCard from "../components/onboarding/QuestionCard";
-import ResultCard from "../components/onboarding/ResultCard";
+import Container from "../components/common/LandingContainer";
+import FadeIn from "../components/common/LandingFadeIn";
+import QuestionCard from "../components/onboarding/LandingQuestionCard";
+import ResultCard from "../components/onboarding/LandingResultCard";
 import { ONBOARDING_QUESTIONS } from "../constants/onboardingOptions";
 import { getUserGroup } from "../utils/onboardingLogic";
 import scrollToWaitlist from "../utils/scrollToWaitlist";

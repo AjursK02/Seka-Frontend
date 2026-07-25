@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { postImages } from "./postImages";
+import { postImages } from "./LandingPostImages";
 
 const INSTAGRAM_URL =
   "https://www.instagram.com/sekacares?igsh=bzk1Nzk4czVmc3F0";

@@ -1,7 +1,7 @@
-import Button from "../common/Button";
-import GlassCard from "../common/GlassCard";
-import ProgressBar from "./ProgressBar";
-import Question from "./Question";
+import Button from "../common/LandingButton";
+import GlassCard from "../common/LandingGlassCard";
+import ProgressBar from "./LandingProgressBar";
+import Question from "./LandingQuestion";
 import type { OnboardingQuestion } from "../../types/onboarding";
 
 interface Props {

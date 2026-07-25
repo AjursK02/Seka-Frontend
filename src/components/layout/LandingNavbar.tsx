@@ -1,5 +1,5 @@
-import Button from "../common/Button";
-import Container from "../common/Container";
+import Button from "../common/LandingButton";
+import Container from "../common/LandingContainer";
 import scrollToWaitlist from "../../utils/scrollToWaitlist";
 import logo from "../../assets/images/Seka_logo (1).png";
 import useScrollThreshold from "../../hooks/useScrollThreshold";

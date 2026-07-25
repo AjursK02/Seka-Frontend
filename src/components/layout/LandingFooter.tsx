@@ -1,5 +1,5 @@
 import { Heart } from "lucide-react";
-import Container from "../common/Container";
+import Container from "../common/LandingContainer";
 import logo from "../../assets/images/Seka_logo (1).png";
 
 const Footer = () => {

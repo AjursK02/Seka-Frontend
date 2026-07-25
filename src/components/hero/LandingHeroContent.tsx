@@ -1,6 +1,6 @@
-import GradientText from "../common/GradientText";
-import FadeIn from "../common/FadeIn";
-import HeroButtons from "./HeroButtons";
+import GradientText from "../common/LandingGradientText";
+import FadeIn from "../common/LandingFadeIn";
+import HeroButtons from "./LandingHeroButtons";
 
 const HeroContent = () => {
   return (

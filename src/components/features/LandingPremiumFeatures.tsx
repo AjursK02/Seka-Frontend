@@ -12,10 +12,10 @@ import {
   Sparkles,
   UtensilsCrossed,
 } from "lucide-react";
-import Button from "../common/Button";
-import Container from "../common/Container";
-import FadeIn from "../common/FadeIn";
-import GlassCard from "../common/GlassCard";
+import Button from "../common/LandingButton";
+import Container from "../common/LandingContainer";
+import FadeIn from "../common/LandingFadeIn";
+import GlassCard from "../common/LandingGlassCard";
 import useViewportWidth from "../../hooks/useViewportWidth";
 
 const features = [

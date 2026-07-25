@@ -1,4 +1,4 @@
-import Button from "../common/Button";
+import Button from "../common/LandingButton";
 import scrollToWaitlist from "../../utils/scrollToWaitlist";
 import { scrollToSelector } from "../../utils/lenis";
 

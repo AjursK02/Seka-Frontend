@@ -1,5 +1,5 @@
-import Button from "../common/Button";
-import GlassCard from "../common/GlassCard";
+import Button from "../common/LandingButton";
+import GlassCard from "../common/LandingGlassCard";
 import type { GroupResult } from "../../types/onboarding";
 
 interface Props {

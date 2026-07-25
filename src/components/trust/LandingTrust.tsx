@@ -1,6 +1,6 @@
 import { ShieldCheck } from "lucide-react";
-import Container from "../common/Container";
-import FadeIn from "../common/FadeIn";
+import Container from "../common/LandingContainer";
+import FadeIn from "../common/LandingFadeIn";
 
 const Trust = () => {
   return (

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Button from "../common/Button";
+import Button from "../common/LandingButton";
 
 const emailRegex = /^(?![.])[A-Z0-9._%+-]+@[A-Z0-9-]+(?:\.[A-Z0-9-]+)+$/i;
 
