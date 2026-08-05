@@ -5,13 +5,13 @@ import type { GroupResult } from "../../types/onboarding";
 interface Props {
   result: GroupResult;
   onRestart: () => void;
-  onJoinWaitlist: () => void;
+  onTryNow: () => void;
 }
 
 const ResultCard = ({
   result,
   onRestart,
-  onJoinWaitlist,
+  onTryNow,
 }: Props) => {
   const onboardingButtonClass =
     "w-full min-w-0 !px-2.5 !py-2 !text-[0.5rem] !leading-none sm:w-auto sm:!px-8 sm:!py-4 sm:!text-sm";
@@ -38,10 +38,10 @@ const ResultCard = ({
         </Button>
 
         <Button
-          onClick={onJoinWaitlist}
+          onClick={onTryNow}
           className={onboardingButtonClass}
         >
-          Join Early Access
+          Try Now
         </Button>
       </div>
     </GlassCard>

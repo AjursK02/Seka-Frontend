@@ -1,7 +1,17 @@
-import Home from "./pages/Home";
+import { BrowserRouter } from "react-router-dom";
 
-const App = () => {
-  return <Home />;
-};
+import { AuthProvider } from "./auth/AuthContext";
+import { CareProvider } from "./context/CareContext";
+import { AppRoutes } from "./routes/AppRoutes";
 
-export default App;
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <CareProvider>
+          <AppRoutes />
+        </CareProvider>
+      </AuthProvider>
+    </BrowserRouter>
+  );
+}

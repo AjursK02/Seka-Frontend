@@ -1,11 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Container from "../components/common/LandingContainer";
 import FadeIn from "../components/common/LandingFadeIn";
 import QuestionCard from "../components/onboarding/LandingQuestionCard";
 import ResultCard from "../components/onboarding/LandingResultCard";
 import { ONBOARDING_QUESTIONS } from "../constants/onboardingOptions";
 import { getUserGroup } from "../utils/onboardingLogic";
-import scrollToWaitlist from "../utils/scrollToWaitlist";
+import { useAuth } from "../auth/AuthContext";
 import type {
   GroupResult,
   OnboardingAnswers,
@@ -18,6 +19,8 @@ const initialAnswers: OnboardingAnswers = {
 };
 
 const Onboarding = () => {
+  const navigate = useNavigate();
+  const { accessToken, user } = useAuth();
   const [answers, setAnswers] =
     useState<OnboardingAnswers>(initialAnswers);
   const [currentStep, setCurrentStep] = useState(0);
@@ -59,8 +62,12 @@ const Onboarding = () => {
     setResult(null);
   };
 
-  const handleJoinWaitlist = () => {
-    scrollToWaitlist();
+  const handleTryNow = () => {
+    if (accessToken && user) {
+      navigate(user.isOnboarded ? "/care" : "/onboarding");
+    } else {
+      navigate("/login");
+    }
   };
 
   return (
@@ -78,7 +85,7 @@ const Onboarding = () => {
               <ResultCard
                 result={result}
                 onRestart={handleRestart}
-                onJoinWaitlist={handleJoinWaitlist}
+                onTryNow={handleTryNow}
               />
             ) : (
               <QuestionCard

@@ -1,11 +1,23 @@
+import { useNavigate } from "react-router-dom";
+
+import { useAuth } from "../../auth/AuthContext";
 import Button from "../common/LandingButton";
 import Container from "../common/LandingContainer";
-import scrollToWaitlist from "../../utils/scrollToWaitlist";
 import logo from "../../assets/images/Seka_logo (1).png";
 import useScrollThreshold from "../../hooks/useScrollThreshold";
 
 const Navbar = () => {
   const scroll = useScrollThreshold(30);
+  const navigate = useNavigate();
+  const { accessToken, user } = useAuth();
+
+  const handleTryNow = () => {
+    if (accessToken && user) {
+      navigate("/today");
+    } else {
+      navigate("/login");
+    }
+  };
 
   return (
     <nav
@@ -53,19 +65,16 @@ const Navbar = () => {
         </div> */}
 
         <div className="hidden md:block">
-          <Button
-            className="px-6 py-3 text-sm"
-            onClick={scrollToWaitlist}
-          >
-            Join Early Access
+          <Button className="px-6 py-3 text-sm" onClick={handleTryNow}>
+            Try Now
           </Button>
         </div>
 
         <Button
           className="!px-3 !py-1.5 !text-[8px] !tracking-[0.04em] leading-none shadow-md md:hidden"
-          onClick={scrollToWaitlist}
+          onClick={handleTryNow}
         >
-          Join Early Access
+          Try Now
         </Button>
       </Container>
     </nav>
