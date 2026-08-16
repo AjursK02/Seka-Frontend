@@ -1,8 +1,11 @@
 import { buildApiUrl } from "../utils/apiBaseUrl";
+import { cachedRequest, invalidateRequestCache } from "../utils/requestCache";
 import type { AuthResponse, AuthUser } from "./types";
 
 const ACCESS_TOKEN_KEY = "seka_access_token";
 const USER_KEY = "seka_user";
+const SESSION_EXPIRES_AT_KEY = "seka_session_expires_at";
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
 const requestJson = async <T>(
   path: string,
@@ -30,13 +33,29 @@ export const authStorage = {
   getAccessToken() {
     return localStorage.getItem(ACCESS_TOKEN_KEY);
   },
-  setSession(accessToken: string, user: AuthUser) {
+  getSessionExpiresAt() {
+    const value = localStorage.getItem(SESSION_EXPIRES_AT_KEY);
+
+    if (!value) {
+      return null;
+    }
+
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  },
+  isSessionExpired() {
+    const expiresAt = this.getSessionExpiresAt();
+    return expiresAt !== null && Date.now() >= expiresAt;
+  },
+  setSession(accessToken: string, user: AuthUser, expiresInMs = ONE_DAY_MS) {
     localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
     localStorage.setItem(USER_KEY, JSON.stringify(user));
+    localStorage.setItem(SESSION_EXPIRES_AT_KEY, String(Date.now() + expiresInMs));
   },
   clearSession() {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
+    localStorage.removeItem(SESSION_EXPIRES_AT_KEY);
   },
   getStoredUser() {
     const serialized = localStorage.getItem(USER_KEY);
@@ -129,11 +148,31 @@ export const logoutRequest = () =>
   });
 
 export const meRequest = (accessToken: string) =>
+  cachedRequest(`auth:me:${accessToken}`, 15000, () =>
+    requestJson<AuthResponse>("/api/auth/me", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }),
+  );
+
+export const updateProfileRequest = (
+  accessToken: string,
+  payload: {
+    name?: string;
+    mobileNumber?: string;
+  }
+) =>
   requestJson<AuthResponse>("/api/auth/me", {
-    method: "GET",
+    method: "PUT",
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
+    body: JSON.stringify(payload),
+  }).then((response) => {
+    invalidateRequestCache("auth:me:");
+    return response;
   });
 
 export const updateOnboardingRequest = (
@@ -156,4 +195,13 @@ export const updateOnboardingRequest = (
       Authorization: `Bearer ${accessToken}`,
     },
     body: JSON.stringify(payload),
+  }).then((response) => {
+    invalidateRequestCache("auth:me:");
+    return response;
   });
+
+export const invalidateAuthRequestCache = () => {
+  invalidateRequestCache("auth:me:");
+};
+
+export const SESSION_DURATION_MS = ONE_DAY_MS;

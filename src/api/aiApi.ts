@@ -1,5 +1,6 @@
 import { authStorage } from "../auth/authApi";
 import { buildApiUrl } from "../utils/apiBaseUrl";
+import { cachedRequest, invalidateRequestCache } from "../utils/requestCache";
 
 const requestJson = async <T>(
   path: string,
@@ -128,7 +129,11 @@ export const sendCareMessageRequest = (
   });
 
 export const getCareConversationsRequest = (page = 1, limit = 20) =>
-  requestJson<AIConversationListResponse>(`/api/v1/chat/conversations?page=${page}&limit=${limit}`);
+  cachedRequest(
+    `care:conversations:${page}:${limit}`,
+    15000,
+    () => requestJson<AIConversationListResponse>(`/api/v1/chat/conversations?page=${page}&limit=${limit}`),
+  );
 
 export const getCareConversationRequest = (conversationId: string, page?: number, limit = 50) => {
   const searchParams = new URLSearchParams();
@@ -142,13 +147,26 @@ export const getCareConversationRequest = (conversationId: string, page?: number
   }
 
   const query = searchParams.toString();
+  const cacheKey = `care:conversation:${conversationId}:${page ?? "latest"}:${limit}`;
 
-  return requestJson<AIConversationDetailResponse>(
-    `/api/v1/chat/conversations/${conversationId}${query ? `?${query}` : ""}`,
+  return cachedRequest(
+    cacheKey,
+    15000,
+    () =>
+      requestJson<AIConversationDetailResponse>(
+        `/api/v1/chat/conversations/${conversationId}${query ? `?${query}` : ""}`,
+      ),
   );
 };
 
 export const deleteCareConversationRequest = (conversationId: string) =>
   requestJson<AIConversationDeleteResponse>(`/api/v1/chat/conversations/${conversationId}`, {
     method: "DELETE",
+  }).then((response) => {
+    invalidateRequestCache("care:");
+    return response;
   });
+
+export const invalidateCareRequestCache = () => {
+  invalidateRequestCache("care:");
+};

@@ -10,12 +10,15 @@ import {
 
 import {
   authStorage,
+  invalidateAuthRequestCache,
   loginRequest,
   logoutRequest,
   meRequest,
   refreshRequest,
+  SESSION_DURATION_MS,
   signupRequest,
   updateOnboardingRequest,
+  updateProfileRequest,
 } from "./authApi";
 import type { AuthResponse, AuthState, AuthUser } from "./types";
 
@@ -38,6 +41,10 @@ interface AuthContextValue extends AuthState {
   logout: () => Promise<void>;
   setAuthenticatedSession: (accessToken: string, user: AuthUser) => void;
   refreshSession: () => Promise<boolean>;
+  updateProfile: (payload: {
+    name?: string;
+    mobileNumber?: string;
+  }) => Promise<void>;
   completeOnboarding: (onboardingAnswers: {
     pcosConcern: string[];
     periodFrequency: string;
@@ -61,8 +68,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>(() => {
     const storedToken = authStorage.getAccessToken();
     const storedUser = authStorage.getStoredUser();
+    const isSessionExpired = authStorage.isSessionExpired();
 
-    if (storedToken && storedUser) {
+    if (storedToken && storedUser && !isSessionExpired) {
       return {
         status: "loading",
         user: storedUser,
@@ -74,7 +82,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   const setAuthenticatedSession = useCallback((accessToken: string, user: AuthUser) => {
-    authStorage.setSession(accessToken, user);
+    authStorage.setSession(accessToken, user, SESSION_DURATION_MS);
+    invalidateAuthRequestCache();
     setState({
       status: "authenticated",
       user,
@@ -84,6 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const clearSession = useCallback(() => {
     authStorage.clearSession();
+    invalidateAuthRequestCache();
     setState({
       status: "unauthenticated",
       user: null,
@@ -113,12 +123,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const bootstrap = async () => {
       const storedToken = authStorage.getAccessToken();
+      const storedUser = authStorage.getStoredUser();
+      const isSessionExpired = authStorage.isSessionExpired();
 
-      if (!storedToken) {
+      if (!storedToken || isSessionExpired) {
         if (isMounted) {
           clearSession();
         }
         return;
+      }
+
+      if (storedUser) {
+        setState({
+          status: "loading",
+          user: storedUser,
+          accessToken: storedToken,
+        });
       }
 
       try {
@@ -132,7 +152,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         if (response.user && isMounted) {
-          authStorage.setSession(storedToken, response.user);
+          authStorage.setSession(storedToken, response.user, SESSION_DURATION_MS);
           setState({
             status: "authenticated",
             user: response.user,
@@ -204,6 +224,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [clearSession, setAuthenticatedSession, state.accessToken]);
 
+  const updateProfile = useCallback(async (payload: {
+    name?: string;
+    mobileNumber?: string;
+  }) => {
+    if (!state.accessToken) {
+      throw new Error("No active session. Please log in.");
+    }
+
+    const response = await updateProfileRequest(state.accessToken, payload);
+
+    if (response.user) {
+      setAuthenticatedSession(state.accessToken, response.user);
+    } else if (response.errors) {
+      throw response;
+    } else {
+      throw new Error(response.message || "Failed to update your profile.");
+    }
+  }, [setAuthenticatedSession, state.accessToken]);
+
   const contextValue = useMemo(
     () => ({
       ...state,
@@ -213,8 +252,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAuthenticatedSession,
       refreshSession,
       completeOnboarding,
+      updateProfile,
     }),
-    [state, signup, login, logout, setAuthenticatedSession, refreshSession, completeOnboarding]
+    [state, signup, login, logout, setAuthenticatedSession, refreshSession, completeOnboarding, updateProfile]
   );
 
   return (

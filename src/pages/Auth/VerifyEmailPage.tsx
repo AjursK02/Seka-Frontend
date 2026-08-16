@@ -156,7 +156,7 @@ const VerifyEmailPage = () => {
         <div className="text-center">
           <h1 className="text-3xl font-bold tracking-tight text-gray-950 sm:text-4xl">Verify your email</h1>
           <p className="mt-2 text-sm text-gray-600">
-            Enter the code we sent to your registered email address.
+            Enter the code we sent to your registered email address. Check your inbox or spam folder if you do not see it.
           </p>
         </div>
 

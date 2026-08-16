@@ -45,9 +45,15 @@ export function DailyCheckInInsightPage() {
   const [logs, setLogs] = useState<any[]>([]);
 
   useEffect(() => {
+    let cancelled = false;
+
     const fetchLogs = async () => {
       try {
         const res = await getDailyCheckInsRequest();
+        if (cancelled) {
+          return;
+        }
+
         if (res.success && res.data) {
           if (res.data.length === 0) {
             // Seed mock history logs to database
@@ -94,13 +100,15 @@ export function DailyCheckInInsightPage() {
               }
             ];
 
-            // Save seeds one by one
-            for (const item of mockHistory) {
-              await createOrUpdateDailyCheckInRequest(item);
+            await Promise.all(mockHistory.map((item) => createOrUpdateDailyCheckInRequest(item)));
+
+            if (cancelled) {
+              return;
             }
+
             // Fetch updated logs list
             const finalRes = await getDailyCheckInsRequest();
-            if (finalRes.success && finalRes.data) {
+            if (!cancelled && finalRes.success && finalRes.data) {
               setLogs(finalRes.data);
             }
           } else {
@@ -108,10 +116,16 @@ export function DailyCheckInInsightPage() {
           }
         }
       } catch (err) {
-        console.error("Failed to fetch daily check-ins from database:", err);
+        if (!cancelled) {
+          console.error("Failed to fetch daily check-ins from database:", err);
+        }
       }
     };
     fetchLogs();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleClearHistory = async () => {

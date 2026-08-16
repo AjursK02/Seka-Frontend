@@ -11,6 +11,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 import {
   deleteCareConversationRequest,
+  invalidateCareRequestCache,
   getCareConversationRequest,
   getCareConversationsRequest,
   sendCareMessageRequest,
@@ -22,6 +23,7 @@ import type { CareMessage } from "../types/care";
 import { normalizeCareAssistantText } from "../utils/normalizeCareAssistantText";
 
 const ACTIVE_CONVERSATION_STORAGE_KEY = "seka-care-active-conversation-id";
+const MAX_USER_MESSAGES_PER_CONVERSATION = 15;
 
 const createMessageId = () => `care-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -55,7 +57,10 @@ const mapStoredMessage = (message: {
   id: message._id || message.id || createMessageId(),
   sender: message.role === "assistant" ? "seka" : "user",
   label: message.role === "assistant" ? "SEKA Insights" : undefined,
-  text: message.content,
+  text:
+    message.role === "assistant"
+      ? normalizeCareAssistantText(message.content || "")
+      : message.content,
   time: formatTimestamp(new Date(message.createdAt)),
 });
 
@@ -74,6 +79,9 @@ interface CareContextValue {
   conversations: AIConversationSummary[];
   activeConversationId: string | null;
   activeConversationTitle: string;
+  messageLimit: number;
+  userMessageCount: number;
+  isConversationMessageLimitReached: boolean;
   pagination: AIConversationPagination | null;
   isSending: boolean;
   isLoadingConversations: boolean;
@@ -109,6 +117,12 @@ export function CareProvider({ children }: { children: ReactNode }) {
   const [errorMessage, setErrorMessage] = useState("");
   const [conversationError, setConversationError] = useState("");
   const [isMobileConversationsOpen, setIsMobileConversationsOpen] = useState(false);
+
+  const userMessageCount = useMemo(
+    () => messages.filter((message) => message.sender === "user").length,
+    [messages],
+  );
+  const isConversationMessageLimitReached = userMessageCount >= MAX_USER_MESSAGES_PER_CONVERSATION;
 
   const resolveErrorMessage = (error: unknown) => {
     if (error instanceof Error && error.message) {
@@ -182,7 +196,13 @@ export function CareProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
-    void refreshConversations();
+    const timer = window.setTimeout(() => {
+      void refreshConversations();
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -309,6 +329,13 @@ export function CareProvider({ children }: { children: ReactNode }) {
         return false;
       }
 
+      if (isConversationMessageLimitReached) {
+        setErrorMessage(
+          `You’ve reached the ${MAX_USER_MESSAGES_PER_CONVERSATION}-message limit for this chat. Start a new chat to continue.`,
+        );
+        return false;
+      }
+
       setErrorMessage("");
       setIsSending(true);
 
@@ -355,6 +382,7 @@ export function CareProvider({ children }: { children: ReactNode }) {
           applyActiveConversation(persistedConversationId);
         }
 
+        invalidateCareRequestCache();
         void refreshConversations(persistedConversationId);
 
         return true;
@@ -365,7 +393,15 @@ export function CareProvider({ children }: { children: ReactNode }) {
         setIsSending(false);
       }
     },
-    [activeConversationId, messages, isSending, appendMessage, applyActiveConversation, refreshConversations],
+    [
+      activeConversationId,
+      messages,
+      isSending,
+      isConversationMessageLimitReached,
+      appendMessage,
+      applyActiveConversation,
+      refreshConversations,
+    ],
   );
 
   const contextValue = useMemo(
@@ -374,6 +410,9 @@ export function CareProvider({ children }: { children: ReactNode }) {
       conversations,
       activeConversationId,
       activeConversationTitle,
+      messageLimit: MAX_USER_MESSAGES_PER_CONVERSATION,
+      userMessageCount,
+      isConversationMessageLimitReached,
       pagination,
       isSending,
       isLoadingConversations,
@@ -395,6 +434,8 @@ export function CareProvider({ children }: { children: ReactNode }) {
       conversations,
       activeConversationId,
       activeConversationTitle,
+      userMessageCount,
+      isConversationMessageLimitReached,
       pagination,
       isSending,
       isLoadingConversations,

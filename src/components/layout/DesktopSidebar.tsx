@@ -1,9 +1,12 @@
 import { Plus, Trash2 } from "lucide-react";
+import { useAuth } from "../../auth/AuthContext";
+import { Avatar } from "../common/Avatar";
 import { NavigationItem } from "../common/NavigationItem";
 import { navigationItems, profile } from "../../data/today";
 import { useCare, formatConversationStamp } from "../../context/CareContext";
 
 export function DesktopSidebar() {
+  const { user } = useAuth();
   const {
     conversations,
     activeConversationId,
@@ -14,22 +17,37 @@ export function DesktopSidebar() {
     handleConversationDelete,
   } = useCare();
 
+  const userInitials = user?.name
+    ? user.name
+        .split(" ")
+        .filter(Boolean)
+        .map((part) => part[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
+    : "G";
+  const sidebarNavigationItems = navigationItems.filter((item) => item.id !== "patterns");
+
   return (
     <aside className="fixed left-0 top-0 hidden h-screen w-64 border-r border-primary/10 bg-surface/90 px-6 py-6 backdrop-blur-xl lg:flex lg:flex-col">
       <div className="flex items-center gap-3">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-sm font-bold text-white shadow-soft">
-          {profile.initials}
-        </div>
-        <div>
-          <p className="text-2xl font-display leading-none text-primary">SEKA</p>
-          <p className="mt-1 text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-text-muted">
+        <Avatar
+          name={user?.name || "Guest"}
+          initials={userInitials}
+          alt="Current user profile"
+          size="lg"
+          className="h-14 w-14 border border-white/60 bg-gradient-to-br from-primary via-[#d34a5d] to-[#8d1f2e] text-white shadow-[0_18px_40px_rgba(185,35,52,0.26)] ring-4 ring-primary/10"
+        />
+        <div className="min-w-0">
+          <p className="truncate text-2xl font-display leading-none text-primary">SEKA</p>
+          <p className="mt-1 truncate text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-text-muted">
             {profile.role}
           </p>
         </div>
       </div>
 
       <nav className="mt-10 flex flex-col gap-2">
-        {navigationItems.map((item) => (
+        {sidebarNavigationItems.map((item) => (
           <NavigationItem key={item.id} item={item} variant="sidebar" />
         ))}
       </nav>

@@ -1,6 +1,7 @@
 import { MessageCircle, Plus, Trash2 } from "lucide-react";
 
 import { Button } from "../../components/common/Button";
+import { Card } from "../../components/common/Card";
 import { Section } from "../../components/common/Section";
 import { Typography } from "../../components/common/Typography";
 import { carePageContent } from "../../data/care";
@@ -15,6 +16,7 @@ export function CarePage() {
     conversations,
     activeConversationId,
     activeConversationTitle,
+    isConversationMessageLimitReached,
     pagination,
     isSending,
     isLoadingConversations,
@@ -156,7 +158,11 @@ export function CarePage() {
             <Typography variant="bodyMuted">Loading conversation...</Typography>
           ) : null}
 
-          <CareConversation messages={messages} evidence={carePageContent.evidence} />
+          <CareConversation
+            messages={messages}
+            evidence={carePageContent.evidence}
+            isSending={isSending}
+          />
 
           {errorMessage ? (
             <Typography as="p" variant="micro" className="text-error">
@@ -169,11 +175,32 @@ export function CarePage() {
           </Typography>
         </Section>
 
-        <CareComposer
-          placeholder={carePageContent.composerPlaceholder}
-          isSending={isSending}
-          onSend={sendMessage}
-        />
+        {isConversationMessageLimitReached ? (
+          <Card className="space-y-4 border-outline/70 bg-surface-muted">
+            <div className="space-y-2">
+              <Typography as="h2" variant="title">
+                Message limit reached
+              </Typography>
+              <Typography variant="bodyMuted">
+                You’ve used all messages in this chat. Start a new chat to continue.
+              </Typography>
+            </div>
+
+            <Button
+              type="button"
+              className="w-full justify-center sm:w-auto"
+              onClick={handleStartNewConversation}
+            >
+              Start new chat
+            </Button>
+          </Card>
+        ) : (
+          <CareComposer
+            placeholder={carePageContent.composerPlaceholder}
+            isSending={isSending}
+            onSend={sendMessage}
+          />
+        )}
       </div>
     </div>
   );

@@ -18,7 +18,7 @@ import type {
 
 export const profile: Profile = {
   name: "Mira",
-  role: "Your AI Care Manager",
+  role: "AI Care Manager",
   initials: "M",
 };
 
@@ -26,7 +26,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "today",
     label: "Today",
-    href: "/today",
+    href: "/today/daily-check-in",
     icon: CalendarDays,
   },
   {

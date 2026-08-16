@@ -280,7 +280,7 @@ const ForgotPasswordPage = () => {
         <div className="text-center">
           <h1 className="text-3xl font-bold tracking-tight text-gray-950 sm:text-4xl">Forgot password</h1>
           <p className="mt-2 text-sm text-gray-600">
-            We’ll send a code to your email, then you can set a new password.
+            We’ll send a code to your email, then you can set a new password. Check your inbox or spam folder if the code does not show up.
           </p>
         </div>
 
@@ -311,6 +311,10 @@ const ForgotPasswordPage = () => {
               autoComplete="email"
             />
 
+            <p className="text-xs leading-5 text-gray-500">
+              After you send the request, we’ll email a reset code. Please check your inbox or spam folder for it.
+            </p>
+
             <Button
               type="submit"
               className="w-full justify-center py-3 text-base font-semibold"
@@ -323,6 +327,10 @@ const ForgotPasswordPage = () => {
 
         {step === "verify" ? (
           <form className="space-y-5" onSubmit={handleVerifyCode}>
+            <p className="text-xs leading-5 text-gray-500">
+              Enter the code from your email. If you do not see it, check your inbox and spam folder.
+            </p>
+
             <AuthField
               label="Email address"
               type="email"

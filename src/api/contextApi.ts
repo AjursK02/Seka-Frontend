@@ -1,6 +1,7 @@
 import { buildApiUrl } from "../utils/apiBaseUrl";
 import { authStorage } from "../auth/authApi";
 import type { ContextLogKind, ContextResponse } from "../types/context";
+import { cachedRequest, invalidateRequestCache } from "../utils/requestCache";
 
 const requestJson = async <T>(
   path: string,
@@ -27,9 +28,11 @@ const requestJson = async <T>(
 };
 
 export const getContextRequest = () =>
-  requestJson<ContextResponse>("/api/v1/context", {
-    method: "GET",
-  });
+  cachedRequest("context:root", 15000, () =>
+    requestJson<ContextResponse>("/api/v1/context", {
+      method: "GET",
+    }),
+  );
 
 export const createContextLogRequest = (payload: {
   kind: ContextLogKind;
@@ -45,6 +48,9 @@ export const createContextLogRequest = (payload: {
   requestJson<ContextResponse>("/api/v1/context/logs", {
     method: "POST",
     body: JSON.stringify(payload),
+  }).then((response) => {
+    invalidateRequestCache("context:");
+    return response;
   });
 
 export const createCycleRequest = (payload: {
@@ -58,6 +64,9 @@ export const createCycleRequest = (payload: {
   requestJson<ContextResponse>("/api/v1/context/cycle", {
     method: "POST",
     body: JSON.stringify(payload),
+  }).then((response) => {
+    invalidateRequestCache("context:");
+    return response;
   });
 
 export const createMedicationRequest = (payload: {
@@ -72,6 +81,9 @@ export const createMedicationRequest = (payload: {
   requestJson<ContextResponse>("/api/v1/context/medications", {
     method: "POST",
     body: JSON.stringify(payload),
+  }).then((response) => {
+    invalidateRequestCache("context:");
+    return response;
   });
 
 export const createReportRequest = (payload: {
@@ -85,6 +97,9 @@ export const createReportRequest = (payload: {
   requestJson<ContextResponse>("/api/v1/context/reports", {
     method: "POST",
     body: JSON.stringify(payload),
+  }).then((response) => {
+    invalidateRequestCache("context:");
+    return response;
   });
 
 export const uploadReportRequest = (payload: {
@@ -118,6 +133,7 @@ export const uploadReportRequest = (payload: {
       throw payloadResult;
     }
 
+    invalidateRequestCache("context:");
     return payloadResult;
   });
 };
@@ -135,17 +151,25 @@ export interface DailyCheckIn {
 }
 
 export const getDailyCheckInsRequest = () =>
-  requestJson<{ success: boolean; data: DailyCheckIn[] }>("/api/v1/context/daily-check-ins", {
-    method: "GET",
-  });
+  cachedRequest("context:daily-check-ins", 15000, () =>
+    requestJson<{ success: boolean; data: DailyCheckIn[] }>("/api/v1/context/daily-check-ins", {
+      method: "GET",
+    }),
+  );
 
 export const createOrUpdateDailyCheckInRequest = (payload: Omit<DailyCheckIn, "_id">) =>
   requestJson<{ success: boolean; data: DailyCheckIn }>("/api/v1/context/daily-check-in", {
     method: "POST",
     body: JSON.stringify(payload),
+  }).then((response) => {
+    invalidateRequestCache("context:");
+    return response;
   });
 
 export const clearDailyCheckInsRequest = () =>
   requestJson<{ success: boolean }>("/api/v1/context/daily-check-ins/clear", {
     method: "POST",
+  }).then((response) => {
+    invalidateRequestCache("context:");
+    return response;
   });

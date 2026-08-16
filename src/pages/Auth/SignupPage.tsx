@@ -81,7 +81,7 @@ const SignupPage = () => {
           email: email.trim(),
           message:
             response.message ||
-            "We sent a verification code to your email address. Enter it to finish signup.",
+            "We sent a verification code to your email address. Check your inbox or spam folder, then enter it to finish signup.",
         },
       });
     } catch (error) {
@@ -114,6 +114,9 @@ const SignupPage = () => {
       <div className="space-y-6">
         <div className="text-center">
           <h1 className="text-3xl font-bold tracking-tight text-gray-950 sm:text-4xl">Create account</h1>
+          <p className="mt-2 text-sm text-gray-600">
+            After sign up, we’ll send a verification code to your email. Check your inbox or spam folder if it doesn’t appear right away.
+          </p>
         </div>
 
         {state.message ? (

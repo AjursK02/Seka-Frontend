@@ -1,15 +1,12 @@
 import {
-  Bell,
   ChevronRight,
   ClipboardList,
   Dna,
-  FlaskConical,
   HeartPulse,
   NotebookPen,
   LogOut,
   Activity,
   Pencil,
-  Target,
   Shield,
   UserRoundCog,
 } from "lucide-react";
@@ -58,29 +55,13 @@ export const profileHighlights: ProfileHighlightCard[] = [
     activityLabel: "Goal: Manage Fatigue",
   },
   {
-    id: "lab-reports",
-    title: "Lab Reports",
-    subtitle: "3 Documents",
-    icon: FlaskConical,
-    tone: "default",
-    meta: "Last uploaded Jul 12",
-  },
-  {
-    id: "my-goals",
-    title: "Manage Fatigue",
-    subtitle: "My Goals",
-    icon: Target,
-    tone: "strong",
-    meta: "Current focus",
-    activityLabel: "Daily recovery + balanced meals",
-  },
-  {
     id: "health-data",
     title: "Health Data",
     subtitle: "Synced from HealthKit",
     icon: Activity,
     tone: "default",
     meta: "Sync Active",
+    activityLabel: "Open context",
   },
   {
     id: "visit-summary",
@@ -98,11 +79,6 @@ export const profileSettings: ProfileSettingItem[] = [
     id: "personal",
     label: "Personal Information",
     icon: UserRoundCog,
-  },
-  {
-    id: "notifications",
-    label: "Notifications",
-    icon: Bell,
   },
   {
     id: "privacy",

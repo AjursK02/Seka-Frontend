@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   CalendarDays,
-  Dumbbell,
   Droplets,
   FileText,
   Loader2,
@@ -11,7 +10,6 @@ import {
   Pill,
   Plus,
   Sparkles,
-  UtensilsCrossed,
   Activity,
   Upload,
 } from "lucide-react";
@@ -128,34 +126,6 @@ const logConfig: Record<
     unitPlaceholder: "liters",
     notesLabel: "Notes",
   },
-  mood: {
-    icon: Sparkles,
-    title: "Mood",
-    description: "Record how you are feeling overall.",
-    valueLabel: "Mood",
-    valuePlaceholder: "Calm",
-    notesLabel: "Notes",
-  },
-  nutrition: {
-    icon: UtensilsCrossed,
-    title: "Nutrition",
-    description: "Add a meal or nutrition note.",
-    valueLabel: "Meal summary",
-    valuePlaceholder: "Protein bowl with vegetables",
-    notesLabel: "Notes",
-  },
-  exercise: {
-    icon: Dumbbell,
-    title: "Exercise",
-    description: "Log a workout or movement session.",
-    valueLabel: "Workout",
-    valuePlaceholder: "30-minute walk",
-    amountLabel: "Duration",
-    amountPlaceholder: "30",
-    unitLabel: "Unit",
-    unitPlaceholder: "minutes",
-    notesLabel: "Notes",
-  },
 };
 
 const formatDate = (value?: string | null) => {
@@ -172,9 +142,6 @@ const emptyContext = (): StructuredContext => ({
   symptoms: [],
   sleep: [],
   water: [],
-  mood: [],
-  nutrition: [],
-  exercise: [],
   medications: [],
   reports: [],
 });
@@ -191,9 +158,6 @@ const normalizeContext = (value?: Partial<StructuredContext> | null): Structured
   symptoms: Array.isArray(value?.symptoms) ? value.symptoms : [],
   sleep: Array.isArray(value?.sleep) ? value.sleep : [],
   water: Array.isArray(value?.water) ? value.water : [],
-  mood: Array.isArray(value?.mood) ? value.mood : [],
-  nutrition: Array.isArray(value?.nutrition) ? value.nutrition : [],
-  exercise: Array.isArray(value?.exercise) ? value.exercise : [],
   medications: Array.isArray(value?.medications) ? value.medications : [],
   reports: Array.isArray(value?.reports) ? value.reports : [],
 });
@@ -219,9 +183,6 @@ export function HealthContextPage() {
     symptom: initialLogDraft(),
     sleep: initialLogDraft(),
     water: initialLogDraft(),
-    mood: initialLogDraft(),
-    nutrition: initialLogDraft(),
-    exercise: initialLogDraft(),
   });
   const [cycleDraft, setCycleDraft] = useState<CycleDraft>({
     startDate: todayIso(),
@@ -459,30 +420,27 @@ export function HealthContextPage() {
         ? context.symptoms
         : kind === "sleep"
           ? context.sleep
-          : kind === "water"
-            ? context.water
-            : kind === "mood"
-              ? context.mood
-              : kind === "nutrition"
-                ? context.nutrition
-                : context.exercise;
+          : context.water;
     const Icon = config.icon;
 
     return (
-      <Card key={kind} className="space-y-4">
+      <Card
+        key={kind}
+        className="flex h-full flex-col space-y-4"
+      >
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.22em] text-text-muted">
+            <Typography as="h2" variant="headline" className="flex items-center gap-2 text-text">
               <Icon className="h-4 w-4 text-primary" />
               {config.title}
-            </div>
+            </Typography>
             <Typography as="p" variant="bodyMuted">
               {config.description}
             </Typography>
           </div>
         </div>
 
-        <div className="grid gap-3">
+        <div className="flex flex-1 flex-col gap-3">
           <label className="space-y-2">
             <span className="text-xs font-semibold uppercase tracking-[0.18em] text-text-muted">
               {config.valueLabel}
@@ -571,7 +529,7 @@ export function HealthContextPage() {
           </Button>
         </div>
 
-        <div className="space-y-2 border-t border-outline/70 pt-4">
+        <div className="mt-auto space-y-2 border-t border-outline/70 pt-4">
           <Typography as="p" variant="micro" className="text-text-muted">
             Recent entries
           </Typography>
@@ -603,10 +561,7 @@ export function HealthContextPage() {
     context.medications.length > 0 ||
     context.reports.length > 0 ||
     context.sleep.length > 0 ||
-    context.water.length > 0 ||
-    context.mood.length > 0 ||
-    context.nutrition.length > 0 ||
-    context.exercise.length > 0;
+    context.water.length > 0;
 
   return (
     <Section className="space-y-8 pb-10">
@@ -718,10 +673,11 @@ export function HealthContextPage() {
         )}
       </Card>
 
-      <Card className="space-y-4">
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3 xl:gap-6">
+      <Card className="flex h-full flex-col space-y-4">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <Typography as="h2" variant="title">
+            <Typography as="h2" variant="headline">
               Cycle
             </Typography>
             <Typography variant="bodyMuted" className="mt-1">
@@ -789,13 +745,16 @@ export function HealthContextPage() {
           />
         </label>
 
-        <Button
-          onClick={handleCycleSave}
-          disabled={isSaving === "cycle"}
-          leadingIcon={isSaving === "cycle" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-        >
-          {isSaving === "cycle" ? "Saving..." : "Save Cycle"}
-        </Button>
+        <div className="mt-auto">
+          <Button
+            onClick={handleCycleSave}
+            disabled={isSaving === "cycle"}
+            leadingIcon={isSaving === "cycle" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+            className="w-full"
+          >
+            {isSaving === "cycle" ? "Saving..." : "Save Cycle"}
+          </Button>
+        </div>
 
         {context.cycle ? (
           <div className="rounded-2xl border border-outline/70 bg-surface px-4 py-3">
@@ -809,19 +768,13 @@ export function HealthContextPage() {
         ) : null}
       </Card>
 
-      <div className="grid gap-6 xl:grid-cols-2">
-        {renderLogCard("symptom")}
+      {renderLogCard("symptom")}
         {renderLogCard("sleep")}
         {renderLogCard("water")}
-        {renderLogCard("mood")}
-        {renderLogCard("nutrition")}
-        {renderLogCard("exercise")}
-      </div>
 
-      <div className="grid gap-6 xl:grid-cols-2">
-        <Card className="space-y-4">
+        <Card className="flex h-full flex-col space-y-4">
           <div>
-            <Typography as="h2" variant="title">
+            <Typography as="h2" variant="headline">
               Medications
             </Typography>
             <Typography variant="bodyMuted" className="mt-1">
@@ -892,7 +845,7 @@ export function HealthContextPage() {
             {isSaving === "medication" ? "Saving..." : "Save Medication"}
           </Button>
 
-          <div className="space-y-2 border-t border-outline/70 pt-4">
+          <div className="mt-auto space-y-2 border-t border-outline/70 pt-4">
             {context.medications.length ? (
               context.medications.slice(0, 3).map((item) => (
                 <div key={item.id} className="rounded-2xl border border-outline/70 bg-surface px-4 py-3">
@@ -908,9 +861,9 @@ export function HealthContextPage() {
           </div>
         </Card>
 
-        <Card className="space-y-4">
+        <Card className="flex h-full flex-col space-y-4">
           <div>
-            <Typography as="h2" variant="title">
+            <Typography as="h2" variant="headline">
               Reports
             </Typography>
             <Typography variant="bodyMuted" className="mt-1">
@@ -1005,7 +958,7 @@ export function HealthContextPage() {
             {isSaving === "report" ? "Saving..." : "Save Report"}
           </Button>
 
-          <div className="space-y-2 border-t border-outline/70 pt-4">
+          <div className="mt-auto space-y-2 border-t border-outline/70 pt-4">
             {context.reports.length ? (
               context.reports.slice(0, 3).map((item) => (
                 <div key={item.id} className="rounded-2xl border border-outline/70 bg-surface px-4 py-3">

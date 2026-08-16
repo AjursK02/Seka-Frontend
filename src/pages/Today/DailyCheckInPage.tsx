@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   ArrowLeft,
@@ -28,6 +28,7 @@ type CravingsOption = (typeof cravingsOptions)[number];
 export function DailyCheckInPage() {
   const navigate = useNavigate();
   const shouldReduceMotion = useReducedMotion();
+  const savedOnlyTimerRef = useRef<number | null>(null);
 
   const [energy, setEnergy] = useState<EnergyOption>("Okay");
   const [mood, setMood] = useState<MoodOption>("Good");
@@ -37,11 +38,21 @@ export function DailyCheckInPage() {
   const [symptoms, setSymptoms] = useState<string[]>(["Fatigue"]);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     const fetchTodayCheckIn = async () => {
       try {
         const today = new Date();
-        const dateStr = today.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+        const dateStr = today.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        });
         const res = await getDailyCheckInsRequest();
+        if (controller.signal.aborted) {
+          return;
+        }
+
         if (res.success && res.data) {
           const todayLog = res.data.find((item: any) => item.date === dateStr);
           if (todayLog) {
@@ -54,10 +65,20 @@ export function DailyCheckInPage() {
           }
         }
       } catch (err) {
-        console.error("Failed to load today's check-in from database:", err);
+        if (!controller.signal.aborted) {
+          console.error("Failed to load today's check-in from database:", err);
+        }
       }
     };
+
     fetchTodayCheckIn();
+
+    return () => {
+      if (savedOnlyTimerRef.current) {
+        window.clearTimeout(savedOnlyTimerRef.current);
+      }
+      controller.abort();
+    };
   }, []);
 
   const toggleSymptom = (symptom: string) => {
@@ -98,7 +119,11 @@ export function DailyCheckInPage() {
 
   const handleSaveOnly = async () => {
     const today = new Date();
-    const dateStr = today.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+    const dateStr = today.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
     const dayStr = today.toLocaleDateString("en-US", { weekday: "long" });
 
     const newCheckIn = {
@@ -117,7 +142,13 @@ export function DailyCheckInPage() {
     try {
       await createOrUpdateDailyCheckInRequest(newCheckIn);
       setIsSavedOnly(true);
-      setTimeout(() => setIsSavedOnly(false), 2500);
+      if (savedOnlyTimerRef.current) {
+        window.clearTimeout(savedOnlyTimerRef.current);
+      }
+      savedOnlyTimerRef.current = window.setTimeout(() => {
+        setIsSavedOnly(false);
+        savedOnlyTimerRef.current = null;
+      }, 2500);
     } catch (err) {
       console.error("Failed to save check-in to database:", err);
     } finally {

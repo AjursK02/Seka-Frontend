@@ -25,8 +25,18 @@ export function MeHighlights({ highlights, tags }: MeHighlightsProps) {
     >
       {highlights.map((highlight, index) => {
         const Icon = highlight.icon;
-        const isLarge = index === 0;
+        const isLarge = index === 0 && highlight.id === "health-profile";
         const isVisitSummary = highlight.id === "visit-summary";
+        const isHealthData = highlight.id === "health-data";
+        const isNavigateable = isVisitSummary || isHealthData;
+
+        const handleCardClick = () => {
+          if (isVisitSummary) {
+            navigate("/me/prepare-for-visit");
+          } else if (isHealthData) {
+            navigate("/me/context");
+          }
+        };
 
         const cardContent = (
           <div
@@ -86,7 +96,7 @@ export function MeHighlights({ highlights, tags }: MeHighlightsProps) {
           </div>
         );
 
-        if (isVisitSummary) {
+        if (isNavigateable) {
           return (
             <motion.button
               key={highlight.id}
@@ -94,7 +104,7 @@ export function MeHighlights({ highlights, tags }: MeHighlightsProps) {
               initial={false}
               whileHover={shouldReduceMotion ? undefined : { y: -2 }}
               whileTap={shouldReduceMotion ? undefined : { scale: 0.99 }}
-              onClick={() => navigate("/me/prepare-for-visit")}
+              onClick={handleCardClick}
               className="group w-full cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <Card
@@ -111,7 +121,7 @@ export function MeHighlights({ highlights, tags }: MeHighlightsProps) {
           <Card
             key={highlight.id}
             tone={highlight.tone ?? "default"}
-            className={index === 0 ? "md:col-span-2 lg:col-span-2" : undefined}
+            className={isLarge ? "md:col-span-2 lg:col-span-2" : undefined}
           >
             {cardContent}
           </Card>

@@ -1,4 +1,4 @@
-export type ContextLogKind = "symptom" | "sleep" | "water" | "mood" | "nutrition" | "exercise";
+export type ContextLogKind = "symptom" | "sleep" | "water";
 
 export interface ContextProfile {
   id: string;
@@ -80,9 +80,6 @@ export interface StructuredContext {
   symptoms: ContextLogEntry[];
   sleep: ContextLogEntry[];
   water: ContextLogEntry[];
-  mood: ContextLogEntry[];
-  nutrition: ContextLogEntry[];
-  exercise: ContextLogEntry[];
   medications: ContextMedication[];
   reports: ContextReport[];
 }
